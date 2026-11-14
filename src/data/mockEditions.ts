@@ -89,6 +89,7 @@ Reatores de fusão estelar recebem aporte de centenas de milhões de euros para 
       id: 'pol-terras-raras-chips',
       category: 'politica',
       readTime: '3',
+      imageUrl: '/covers/cover_politica.jpg',
       sourcesCrossedCount: 4,
       title: {
         pt: 'Brasil Articula Parceria Internacional de Terras Raras para a Cadeia de Semicondutores',
@@ -137,6 +138,7 @@ Reatores de fusão estelar recebem aporte de centenas de milhões de euros para 
       id: 'eco-fiscal-juros',
       category: 'economia',
       readTime: '3',
+      imageUrl: '/covers/cover_economia.jpg',
       sourcesCrossedCount: 5,
       title: {
         pt: 'Ajuste Fiscal e Curva de Juros: O Mercado Diante das Novas Metas Orçamentárias',
@@ -185,6 +187,7 @@ Reatores de fusão estelar recebem aporte de centenas de milhões de euros para 
       id: 'mun-geopolitica-otan',
       category: 'mundo',
       readTime: '3',
+      imageUrl: '/covers/cover_mundo.jpg',
       sourcesCrossedCount: 4,
       title: {
         pt: 'Diplomacia Internacional debate Alternativas de Segurança e o Futuro no Leste Europeu',
@@ -233,6 +236,7 @@ Reatores de fusão estelar recebem aporte de centenas de milhões de euros para 
       id: 'esp-futebol-mundial',
       category: 'esportes',
       readTime: '2',
+      imageUrl: '/covers/cover_esportes.jpg',
       sourcesCrossedCount: 3,
       title: {
         pt: 'Reta Decisiva dos Campeonatos e Preparativos para o Super Mundial de Clubes',
@@ -281,6 +285,7 @@ Reatores de fusão estelar recebem aporte de centenas de milhões de euros para 
       id: 'cie-fusao-nuclear-med',
       category: 'ciencia_saude',
       readTime: '3',
+      imageUrl: '/covers/cover_ciencia.jpg',
       sourcesCrossedCount: 4,
       title: {
         pt: 'Fusão Nuclear e IA em Diagnósticos: A Convergência Científica que Redefine o Futuro',
@@ -294,7 +299,7 @@ Reatores de fusão estelar recebem aporte de centenas de milhões de euros para 
         pt: 'A fusão promete energia infinita e sem carbono para alimentar as cidades e supercomputadores, enquanto modelos de biologia computacional antecipam doenças graves com anos de antecedência.',
         en: 'Nuclear fusion unlocks zero-carbon baseload electricity at scale, while computational biology models detect critical pathologies years before clinical symptoms appear.',
         es: 'La fusión nuclear promete energía limpia inagotable, al tiempo que algoritmos biomédicos detectan patologías de forma temprana.',
-        fr: 'La fusion nucléaire offre une promesse d\'énergie décarbonée illimitée, pendant que l\'IA médicale anticipe les pathologies complexes.',
+        fr: 'La fusion nucléaire offre uma promesse d\'énergie décarbonée illimitée, pendant que l\'IA médicale anticipe les pathologies complexes.',
         de: 'Kernfusion verspricht saubere Grundlastenergie im Überfluss, während biowissenschaftliche KI-Modelle Krankheitsrisiken frühzeitig erkennen.',
         zh: '核聚变技术为高算力未来提供了零碳清洁能源基底，而计算生物学模型能在人体显现出临床体征数年之前精准捕捉细胞级病理微变。'
       },
@@ -329,6 +334,7 @@ Reatores de fusão estelar recebem aporte de centenas de milhões de euros para 
       id: 'cul-cinema-ia-generativa',
       category: 'cultura',
       readTime: '2',
+      imageUrl: '/covers/cover_cultura.jpg',
       sourcesCrossedCount: 3,
       title: {
         pt: 'Cinema e Streaming Redefinem Produções com Efeitos Visuais e Roteirização Assistida por IA',

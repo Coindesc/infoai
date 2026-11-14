@@ -64,55 +64,76 @@ export const SecondaryArticles: React.FC<SecondaryArticlesProps> = ({
             return (
               <div
                 key={article.id}
-                className="flex flex-col justify-between rounded-[12px] border border-[#E5E7EB] dark:border-[#1E293B] bg-[#FFFFFF] dark:bg-[#161E2E] p-6 hover:border-[#2563EB]/40 dark:hover:border-[#3B82F6]/40 transition-all hover:-translate-y-0.5 shadow-sm group"
+                className="flex flex-col justify-between rounded-[12px] border border-[#E5E7EB] dark:border-[#1E293B] bg-[#FFFFFF] dark:bg-[#161E2E] overflow-hidden hover:border-[#2563EB]/40 dark:hover:border-[#3B82F6]/40 transition-all hover:-translate-y-0.5 shadow-sm group"
               >
-                <div>
-                  {/* Category Pill & Read Time */}
-                  <div className="flex items-center justify-between text-xs text-[#4B5563] dark:text-[#94A3B8] mb-3">
-                    <span className="font-semibold uppercase tracking-wider text-[10px] px-2.5 py-0.5 rounded-full bg-[#FAFAFA] dark:bg-[#0B0F17] text-[#2563EB] dark:text-[#3B82F6] border border-[#E5E7EB] dark:border-[#1E293B]">
+                {/* 1. Imagem de Capa da Notícia */}
+                <div className="relative h-48 w-full overflow-hidden bg-slate-900">
+                  <img
+                    src={article.imageUrl}
+                    alt={article.title[language]}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src =
+                        'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80';
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60" />
+                  
+                  {/* Category badge floating on image */}
+                  <div className="absolute bottom-3 left-3 flex items-center gap-2">
+                    <span className="font-semibold uppercase tracking-wider text-[10px] px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-white border border-white/20">
                       {catLabel}
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-[#2563EB] dark:text-[#3B82F6]" />
+                  </div>
+
+                  <div className="absolute top-3 right-3">
+                    <span className="flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md text-slate-200">
+                      <Clock className="w-3 h-3 text-[#3B82F6]" />
                       {article.readTime} {t.minRead}
                     </span>
                   </div>
+                </div>
 
-                  {/* Title */}
-                  <h4 className="font-serif text-lg font-bold text-[#111827] dark:text-[#F8FAFC] group-hover:text-[#2563EB] dark:group-hover:text-[#3B82F6] transition-colors leading-snug mb-3">
-                    {article.title[language]}
-                  </h4>
+                {/* 2. Conteúdo da Notícia */}
+                <div className="p-6 flex-1 flex flex-col justify-between">
+                  <div>
+                    {/* Title */}
+                    <h4 className="font-serif text-lg font-bold text-[#111827] dark:text-[#F8FAFC] group-hover:text-[#2563EB] dark:group-hover:text-[#3B82F6] transition-colors leading-snug mb-3">
+                      {article.title[language]}
+                    </h4>
 
-                  {/* Executive Brief: Why it matters */}
-                  <div className="rounded-[8px] bg-[#FAFAFA] dark:bg-[#0B0F17] border border-[#E5E7EB] dark:border-[#1E293B] p-3 mb-4">
-                    <p className="text-[11px] font-semibold text-[#2563EB] dark:text-[#3B82F6] uppercase tracking-wider mb-1">
-                      {t.whyItMatters}:
-                    </p>
-                    <p className="text-xs text-[#4B5563] dark:text-[#94A3B8] leading-relaxed font-sans font-normal">
-                      {article.whyItMatters[language]}
-                    </p>
-                  </div>
-
-                  {/* Paragraph Snippet */}
-                  <div className="space-y-2 text-xs text-[#4B5563] dark:text-[#94A3B8] leading-relaxed font-sans font-normal">
-                    {article.content[language]?.map((para, idx) => (
-                      <p key={idx} className="line-clamp-4">
-                        {para}
+                    {/* Executive Brief: Why it matters */}
+                    <div className="rounded-[8px] bg-[#FAFAFA] dark:bg-[#0B0F17] border border-[#E5E7EB] dark:border-[#1E293B] p-3 mb-4">
+                      <p className="text-[11px] font-semibold text-[#2563EB] dark:text-[#3B82F6] uppercase tracking-wider mb-1">
+                        {t.whyItMatters}:
                       </p>
-                    ))}
+                      <p className="text-xs text-[#4B5563] dark:text-[#94A3B8] leading-relaxed font-sans font-normal">
+                        {article.whyItMatters[language]}
+                      </p>
+                    </div>
+
+                    {/* Paragraph Snippet */}
+                    <div className="space-y-2 text-xs text-[#4B5563] dark:text-[#94A3B8] leading-relaxed font-sans font-normal">
+                      {article.content[language]?.map((para, idx) => (
+                        <p key={idx} className="line-clamp-3">
+                          {para}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Card Footer: Sources & Read More */}
+                  <div className="pt-4 mt-4 border-t border-[#E5E7EB] dark:border-[#1E293B] flex items-center justify-between text-xs text-[#16A34A] dark:text-[#22C55E]">
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      {article.sourcesCrossedCount} {t.sourcesVerified}
+                    </span>
+                    <span className="text-[#4B5563] dark:text-[#94A3B8] group-hover:text-[#2563EB] dark:group-hover:text-[#3B82F6] transition-colors flex items-center gap-1 font-medium">
+                      {t.readMore} <ArrowRight className="w-3 h-3" />
+                    </span>
                   </div>
                 </div>
 
-                {/* Card Footer: Sources & Read More */}
-                <div className="pt-4 mt-4 border-t border-[#E5E7EB] dark:border-[#1E293B] flex items-center justify-between text-xs text-[#16A34A] dark:text-[#22C55E]">
-                  <span className="flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    {article.sourcesCrossedCount} {t.sourcesVerified}
-                  </span>
-                  <span className="text-[#4B5563] dark:text-[#94A3B8] group-hover:text-[#2563EB] dark:group-hover:text-[#3B82F6] transition-colors flex items-center gap-1 font-medium">
-                    {t.readMore} <ArrowRight className="w-3 h-3" />
-                  </span>
-                </div>
               </div>
             );
           })}

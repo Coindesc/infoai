@@ -14,7 +14,7 @@ export interface Article {
   id: string;
   category: CategoryKey;
   readTime: string;
-  imageUrl?: string;
+  imageUrl: string;
   sourcesCrossedCount: number;
   title: Record<Language, string>;
   whyItMatters: Record<Language, string>;
