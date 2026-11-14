@@ -53,3 +53,4 @@ Jornal Digital e Newsletter 100% Autônomo com curadoria por IA, cobertura multi
    docker compose -f deploy/docker-compose.yml up -d --build
    ```
 4. Veja o guia detalhado em [`deploy/hostinger_setup.md`](deploy/hostinger_setup.md).
+
