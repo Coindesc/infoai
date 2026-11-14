@@ -1,0 +1,33 @@
+# 5. Design System, Paleta de Cores e UI/UX (Light & Dark Mode)
+
+Construa a interface do portal e da página de captura da Newsletter com estética **Editorial Minimalista Ultra-Clean**, priorizando espaço em branco (respiro visual), tipografia elegante e leitura confortável.
+
+### A. Alternância de Tema (Theme Toggle)
+- Adicione um botão elegante e discreto no cabeçalho (ícone de Sol/Lua) que permita ao usuário alternar entre **Modo Claro** e **Modo Escuro**.
+- Salve a preferência do usuário no `localStorage` e respeite o tema padrão do sistema operacional no primeiro acesso (`prefers-color-scheme`).
+
+### B. Paleta de Cores Obrigatória (CSS Variables / Tailwind)
+Implemente exatamente estes tokens de cores:
+
+**Modo Claro (Default - Paper Clean):**
+- Background Principal: `#FAFAFA`
+- Background de Cards e Box de Assinatura: `#FFFFFF`
+- Texto Principal (Manchetes): `#111827`
+- Texto Secundário (Corpo da notícia e legendas): `#4B5563`
+- Cor de Ação Principal (Botões e Badge "No Hype"): `#2563EB`
+- Destaque WhatsApp (Seletor de canal): `#16A34A`
+- Linhas divisórias e bordas sutis: `#E5E7EB`
+
+**Modo Escuro (Dark - Midnight Slate):**
+- Background Principal: `#0B0F17`
+- Background de Cards e Box de Assinatura: `#161E2E`
+- Texto Principal (Manchetes): `#F8FAFC`
+- Texto Secundário (Corpo da notícia e legendas): `#94A3B8`
+- Cor de Ação Principal (Botões e Badge "No Hype"): `#3B82F6`
+- Destaque WhatsApp (Seletor de canal): `#22C55E`
+- Linhas divisórias e bordas sutis: `#1E293B`
+
+### C. Diretrizes de Layout Clean
+- Sem pop-ups invasivos ou anúncios poluídos.
+- O formulário de assinatura da Newsletter (Escolha entre E-mail ou WhatsApp + Seletor de Horário) deve ficar em destaque no topo ou lateral direita em um card limpo com bordas suaves (`border-radius: 12px`) e sombra quase imperceptível.
+- Use a fonte `Inter` para textos corridos e interface, e uma fonte serifada elegante (`Newsreader` ou `Merriweather`) para os títulos das notícias.
