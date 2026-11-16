@@ -93,3 +93,4 @@ async function runDispatch() {
 }
 
 runDispatch().catch(console.error);
+

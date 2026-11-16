@@ -132,3 +132,4 @@ export async function sendMediaMessage(number, mediaUrl, caption, instanceName =
     return { success: false, error: error.message };
   }
 }
+
