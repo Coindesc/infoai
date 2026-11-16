@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createClient } from '@supabase/supabase-js';
+import * as whatsapp from './services/whatsapp.js';
 
 dotenv.config();
 
@@ -93,19 +94,137 @@ app.post('/api/subscribe', async (req, res) => {
   }
 });
 
-// 3. Webhook receiver for Evolution API (WhatsApp events)
-app.post('/api/webhook/evolution', (req, res) => {
+// 3. WhatsApp Integration Endpoints (Evolution API)
+// 3.1 Status da conexão
+app.get('/api/whatsapp/status', async (req, res) => {
+  try {
+    const state = await whatsapp.getConnectionState();
+    res.json({ success: true, state });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 3.2 Visualizar / Conectar QR Code em interface web amigável
+app.get('/api/whatsapp/connect', async (req, res) => {
+  try {
+    // Tenta criar se não existir
+    try {
+      await whatsapp.createInstance();
+    } catch (_) {}
+
+    const connectData = await whatsapp.getConnectQRCode();
+    const qrBase64 = connectData?.base64 || connectData?.qrcode?.base64;
+    const pairingCode = connectData?.pairingCode || connectData?.qrcode?.pairingCode;
+
+    if (qrBase64) {
+      const html = `
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Conectar WhatsApp • InfoAI / VendeRápido</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0B0F17; color: #F8FAFC; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; text-align: center; }
+            .card { background: #161E2E; border: 1px solid #1E293B; border-radius: 16px; padding: 32px; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+            h1 { font-size: 20px; margin-bottom: 8px; color: #3B82F6; }
+            p { font-size: 14px; color: #94A3B8; margin-bottom: 24px; line-height: 1.5; }
+            img { width: 260px; height: 260px; border-radius: 12px; background: white; padding: 8px; }
+            .badge { display: inline-block; background: #16A34A; color: white; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: bold; margin-bottom: 16px; }
+            .code { font-family: monospace; font-size: 18px; color: #22C55E; letter-spacing: 2px; margin-top: 12px; }
+            .hint { font-size: 12px; color: #64748B; margin-top: 20px; }
+          </style>
+          <meta http-equiv="refresh" content="20">
+        </head>
+        <body>
+          <div class="card">
+            <span class="badge">WHATSAPP DISPATCH BOT</span>
+            <h1>Escaneie o QR Code</h1>
+            <p>Abra o WhatsApp no celular > <b>Aparelhos Conectados</b> > <b>Conectar Aparelho</b> e aponte a câmera para o código abaixo:</p>
+            <img src="${qrBase64}" alt="QR Code WhatsApp" />
+            ${pairingCode ? `<div class="code">Código: ${pairingCode}</div>` : ''}
+            <div class="hint">Esta tela atualiza automaticamente a cada 20 segundos.</div>
+          </div>
+        </body>
+        </html>
+      `;
+      return res.send(html);
+    }
+
+    res.json({
+      success: true,
+      message: 'Instância já pode estar conectada ou aguardando status.',
+      data: connectData
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 3.3 Disparo de teste
+app.post('/api/whatsapp/send-test', async (req, res) => {
+  try {
+    const { phone, message } = req.body;
+    let targetPhone = phone;
+
+    if (!targetPhone && supabase) {
+      const { data } = await supabase.from('subscribers').select('phone').eq('is_active', true).limit(1);
+      if (data && data.length > 0) targetPhone = data[0].phone;
+    }
+
+    if (!targetPhone) {
+      return res.status(400).json({ error: 'Nenhum telefone fornecido ou encontrado em assinantes.' });
+    }
+
+    const defaultPayload = message || `🗞️ *INFOAI DIGITAL | TESTE DE INTEGRAÇÃO*\n\nConexão com WhatsApp via Evolution API validada com sucesso!\n\n_100% Autônomo • venderapido.com.br_`;
+    const result = await whatsapp.sendTextMessage(targetPhone, defaultPayload);
+
+    // Registra log se Supabase estiver ativo
+    if (supabase) {
+      await supabase.from('dispatch_logs').insert([
+        {
+          channel: 'whatsapp',
+          status: result.success ? 'success' : 'failed',
+          recipient_count: 1,
+          payload_preview: defaultPayload.slice(0, 100),
+          error_message: result.success ? null : JSON.stringify(result.error)
+        }
+      ]);
+    }
+
+    res.json({ success: result.success, recipient: targetPhone, result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 4. Webhook receiver for Evolution API (WhatsApp events)
+app.post('/api/webhook/evolution', async (req, res) => {
   const event = req.body;
   console.log('[Evolution API Webhook Evento]:', JSON.stringify(event));
 
-  // Example handling: opt-out request ("PARAR" ou "CANCELAR")
-  if (event?.data?.message?.conversation) {
-    const text = event.data.message.conversation.trim().toUpperCase();
-    if (text === 'PARAR' || text === 'CANCELAR') {
-      const fromNumber = event.data.key.remoteJid;
-      console.log(`[Solicitação de Cancelamento WhatsApp]: ${fromNumber}`);
-      // Update subscriber active state in Supabase
+  // Opt-out handling ("PARAR" ou "CANCELAR")
+  try {
+    const msg = event?.data?.message?.conversation || event?.data?.message?.extendedTextMessage?.text;
+    if (msg) {
+      const text = msg.trim().toUpperCase();
+      if (text === 'PARAR' || text === 'CANCELAR') {
+        const remoteJid = event.data.key.remoteJid || '';
+        const phone = remoteJid.replace('@s.whatsapp.net', '').replace(/\D/g, '');
+        console.log(`[Solicitação de Cancelamento WhatsApp]: ${phone}`);
+
+        if (supabase && phone) {
+          await supabase
+            .from('subscribers')
+            .update({ is_active: false })
+            .ilike('phone', `%${phone.slice(-8)}%`);
+          console.log(`[Assinante desativado no Supabase]: ${phone}`);
+        }
+      }
     }
+  } catch (e) {
+    console.error('Erro ao processar webhook opt-out:', e.message);
   }
 
   res.status(200).json({ received: true });
