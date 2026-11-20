@@ -248,9 +248,7 @@ app.post('/api/whatsapp/send-test', async (req, res) => {
       await supabase.from('dispatch_logs').insert([
         {
           channel: 'whatsapp',
-          status: result.success ? 'success' : 'failed',
-          recipient_count: 1,
-          payload_preview: defaultPayload.slice(0, 100),
+          status: result.success ? 'sent' : 'failed',
           error_message: result.success ? null : JSON.stringify(result.error)
         }
       ]);

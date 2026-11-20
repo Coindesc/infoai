@@ -81,9 +81,8 @@ async function runDispatch() {
     await supabase.from('dispatch_logs').insert([
       {
         channel: 'whatsapp',
-        status: sendResult.success ? 'success' : 'failed',
-        recipient_count: 1,
-        payload_preview: DEFAULT_EDITION_PAYLOAD.slice(0, 100),
+        status: sendResult.success ? 'sent' : 'failed',
+        subscriber_id: sub.id,
         error_message: sendResult.success ? null : JSON.stringify(sendResult.error || sendResult.data)
       }
     ]);
