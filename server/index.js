@@ -2,9 +2,11 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { createClient } from '@supabase/supabase-js';
 import * as whatsapp from './services/whatsapp.js';
+import { generateDailyEdition } from './services/editorial_ai.js';
 
 dotenv.config();
 
@@ -34,10 +36,71 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
     system: '100% Autônomo - Sem Pendências',
-    model: 'Gemini 3.8 Flash Core',
+    model: 'Gemini Flash Latest',
     timestamp: new Date().toISOString(),
     supabaseConnected: !!supabase
   });
+});
+
+// 1.1 Consultar última edição publicada
+app.get('/api/edition/latest', async (req, res) => {
+  try {
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('editions')
+        .select('*')
+        .order('published_date', { ascending: false })
+        .limit(1);
+
+      if (!error && data && data.length > 0) {
+        return res.json({ success: true, edition: data[0] });
+      }
+    }
+
+    const localPath = path.join(__dirname, '..', 'edicoes', 'ultima_edicao.json');
+    if (fs.existsSync(localPath)) {
+      const fileData = JSON.parse(fs.readFileSync(localPath, 'utf8'));
+      return res.json({ success: true, edition: fileData });
+    }
+
+    res.status(404).json({ error: 'Nenhuma edição encontrada.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 1.2 Disparo da geração autônoma diária da IA
+app.post('/api/edition/generate', async (req, res) => {
+  try {
+    console.log('[API] Gatilho de geração autônoma acionado...');
+    const edition = await generateDailyEdition();
+
+    if (supabase) {
+      await supabase.from('editions').insert([
+        {
+          edition_number: edition.editionNumber,
+          published_date: new Date().toISOString().split('T')[0],
+          lead_title: edition.leadArticle.title,
+          lead_why_it_matters: edition.leadArticle.whyItMatters,
+          lead_content: edition.leadArticle.content,
+          secondary_articles: edition.articles,
+          cover_image_url: edition.leadArticle.imageUrl,
+          cover_prompt: edition.coverPrompt,
+          whatsapp_payload: edition.whatsAppPayload,
+          system_status: '100% Operacional - Autônomo Gemini Flash'
+        }
+      ]);
+    }
+
+    const edicoesDir = path.join(__dirname, '..', 'edicoes');
+    if (!fs.existsSync(edicoesDir)) fs.mkdirSync(edicoesDir, { recursive: true });
+    fs.writeFileSync(path.join(edicoesDir, 'ultima_edicao.json'), JSON.stringify(edition, null, 2), 'utf8');
+
+    res.json({ success: true, edition });
+  } catch (err) {
+    console.error('Erro na geração da edição:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 // 2. Subscriber Registration Endpoint (Regra 1A de regras_criação)
