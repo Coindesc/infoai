@@ -2,15 +2,24 @@ import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { CURRENT_EDITION } from '../data/mockEditions';
 import { CATEGORY_LABELS } from '../i18n/translations';
+import { Edition } from '../types';
 import { Flame } from 'lucide-react';
 
-export const BreakingTicker: React.FC = () => {
+interface BreakingTickerProps {
+  edition?: Edition;
+}
+
+export const BreakingTicker: React.FC<BreakingTickerProps> = ({ edition = CURRENT_EDITION }) => {
   const { language, t } = useLanguage();
 
+  const activeEdition = edition || CURRENT_EDITION;
+  const leadTitle = activeEdition.leadArticle?.title?.[language] || activeEdition.leadArticle?.title?.pt || '';
+  const leadCat = activeEdition.leadArticle?.category || 'tecnologia';
+
   const tickerItems = [
-    { title: CURRENT_EDITION.leadArticle.title[language], cat: CURRENT_EDITION.leadArticle.category },
-    ...CURRENT_EDITION.articles.map((a) => ({
-      title: a.title[language],
+    { title: leadTitle, cat: leadCat },
+    ...(activeEdition.articles || []).map((a) => ({
+      title: a.title?.[language] || a.title?.pt || '',
       cat: a.category,
     })),
   ];

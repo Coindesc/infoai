@@ -53,7 +53,27 @@ app.get('/api/edition/latest', async (req, res) => {
         .limit(1);
 
       if (!error && data && data.length > 0) {
-        return res.json({ success: true, edition: data[0] });
+        const row = data[0];
+        const formatted = {
+          id: row.id,
+          editionNumber: row.edition_number,
+          date: row.published_date,
+          systemStatus: row.system_status || '100% Operacional - Autônomo Gemini Flash',
+          coverPrompt: row.cover_prompt,
+          whatsAppPayload: row.whatsapp_payload,
+          leadArticle: {
+            id: 'lead-' + row.edition_number,
+            category: 'tecnologia',
+            readTime: '3',
+            imageUrl: row.cover_image_url || '/covers/cover_001.jpg',
+            sourcesCrossedCount: 4,
+            title: row.lead_title,
+            whyItMatters: row.lead_why_it_matters,
+            content: row.lead_content
+          },
+          articles: row.secondary_articles || []
+        };
+        return res.json({ success: true, edition: formatted });
       }
     }
 

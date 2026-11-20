@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { Header } from './components/Header';
@@ -12,11 +12,23 @@ import { SubscribeSection } from './components/SubscribeSection';
 import { WhatsAppPreviewModal } from './components/WhatsAppPreviewModal';
 import { Footer } from './components/Footer';
 import { CURRENT_EDITION } from './data/mockEditions';
-import { CategoryKey } from './types';
+import { CategoryKey, Edition } from './types';
 
 export const MainContent: React.FC = () => {
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('all');
+  const [edition, setEdition] = useState<Edition>(CURRENT_EDITION);
+
+  useEffect(() => {
+    fetch('/api/edition/latest')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success && data.edition) {
+          setEdition(data.edition);
+        }
+      })
+      .catch((err) => console.error('Erro ao buscar última edição:', err));
+  }, []);
 
   const handleScrollToSubscribe = () => {
     const el = document.getElementById('subscribe');
@@ -50,15 +62,15 @@ export const MainContent: React.FC = () => {
       />
 
       {/* 3. Real-time Multi-topic Breaking News Ticker */}
-      <BreakingTicker />
+      <BreakingTicker edition={edition} />
 
       {/* 4. Top Non-Intrusive Sponsored Ribbon */}
       <SponsoredRibbon />
 
       {/* 5. Main Lead Story (Super Manchete) */}
       <main className="flex-1">
-        {selectedCategory === 'all' && (
-          <LeadArticle article={CURRENT_EDITION.leadArticle} />
+        {selectedCategory === 'all' && edition.leadArticle && (
+          <LeadArticle article={edition.leadArticle} />
         )}
 
         {/* 6. In-Feed Editorial Native Ad (Clean & Non-Intrusive) */}
@@ -67,7 +79,7 @@ export const MainContent: React.FC = () => {
         {/* 7. Comprehensive Editorial Desks & Articles Grid */}
         <div id="cadernos-section">
           <SecondaryArticles
-            articles={CURRENT_EDITION.articles}
+            articles={edition.articles || []}
             selectedCategory={selectedCategory}
             onClearFilter={() => setSelectedCategory('all')}
           />
@@ -84,6 +96,7 @@ export const MainContent: React.FC = () => {
       <WhatsAppPreviewModal
         isOpen={isWhatsAppModalOpen}
         onClose={() => setIsWhatsAppModalOpen(false)}
+        payload={edition.whatsAppPayload}
       />
     </div>
   );

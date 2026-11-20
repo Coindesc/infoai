@@ -6,16 +6,19 @@ import { X, Copy, Check, MessageCircle, Smartphone } from 'lucide-react';
 interface WhatsAppPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
+  payload?: string;
 }
 
-export const WhatsAppPreviewModal: React.FC<WhatsAppPreviewModalProps> = ({ isOpen, onClose }) => {
+export const WhatsAppPreviewModal: React.FC<WhatsAppPreviewModalProps> = ({ isOpen, onClose, payload }) => {
   const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
+
+  const activePayload = payload || CURRENT_EDITION.whatsAppPayload;
 
   if (!isOpen) return null;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(CURRENT_EDITION.whatsAppPayload);
+    navigator.clipboard.writeText(activePayload);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
@@ -55,7 +58,7 @@ export const WhatsAppPreviewModal: React.FC<WhatsAppPreviewModalProps> = ({ isOp
               <span>InfoAI Bot • Disparo Agendado (Evolution API)</span>
             </div>
             <pre className="whitespace-pre-wrap font-sans text-xs sm:text-sm leading-relaxed text-[#111827] dark:text-slate-200 selection:bg-emerald-500/30">
-              {CURRENT_EDITION.whatsAppPayload}
+              {activePayload}
             </pre>
           </div>
         </div>
