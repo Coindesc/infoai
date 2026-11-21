@@ -10,6 +10,16 @@ interface SecondaryArticlesProps {
   onClearFilter: () => void;
 }
 
+const CATEGORY_COVERS: Record<string, string> = {
+  politica: '/covers/cover_politica.jpg',
+  economia: '/covers/cover_economia.jpg',
+  mundo: '/covers/cover_mundo.jpg',
+  tecnologia: '/covers/cover_001.jpg',
+  esportes: '/covers/cover_esportes.jpg',
+  ciencia_saude: '/covers/cover_ciencia.jpg',
+  cultura: '/covers/cover_cultura.jpg',
+};
+
 export const SecondaryArticles: React.FC<SecondaryArticlesProps> = ({
   articles,
   selectedCategory,
@@ -59,7 +69,9 @@ export const SecondaryArticles: React.FC<SecondaryArticlesProps> = ({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {filteredArticles.map((article) => {
-            const catLabel = CATEGORY_LABELS[article.category][language];
+            const catLabel = CATEGORY_LABELS[article.category]?.[language] || article.category;
+            const fallbackCover = CATEGORY_COVERS[article.category] || '/covers/cover_001.jpg';
+            const initialCover = article.imageUrl || fallbackCover;
 
             return (
               <div
@@ -69,12 +81,14 @@ export const SecondaryArticles: React.FC<SecondaryArticlesProps> = ({
                 {/* 1. Imagem de Capa da Notícia */}
                 <div className="relative h-48 w-full overflow-hidden bg-slate-900">
                   <img
-                    src={article.imageUrl}
-                    alt={article.title[language]}
+                    src={initialCover}
+                    alt={article.title?.[language] || article.title?.pt || ''}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src =
-                        'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80';
+                      const target = e.currentTarget as HTMLImageElement;
+                      if (!target.src.endsWith(fallbackCover)) {
+                        target.src = fallbackCover;
+                      }
                     }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60" />
